@@ -4,6 +4,7 @@
   "description": "a backend at chai aur code - youtube",
   "main": "index.js",
   "scripts": {
+    
     "dev": "nodemon src/index.js"
   },
   "keywords": [
