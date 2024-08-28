@@ -12,5 +12,8 @@
     "chai"
   ],
   "author": "Asjal Amir",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
 }
