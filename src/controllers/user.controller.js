@@ -346,7 +346,7 @@ const updateUserCoverImage = asyncHandler(async(req, res) => {
 
         {
             $set:{
-                avatar: avatar.url
+                coverImage: coverImage.url
             }   
         },
 
@@ -369,5 +369,7 @@ export {
     changeCurrentPassword,
     getCurrentUser,
     updateAccountDetails,
-    updateUserAvatar
+    updateUserAvatar,
+    updateUserCoverImage
+    
 }
