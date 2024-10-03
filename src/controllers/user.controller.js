@@ -269,7 +269,7 @@ const changeCurrentPassword = asyncHandler(async(req, res) => {
 const getCurrentUser = asyncHandler(async(req, res) => {
     return res
     .status(200)
-    .json(200, req.user, "current user fetched successfully")
+    .json(new ApiResponse(200, req.user, "current user fetched successfully"))
 })
 
 const updateAccountDetails = asyncHandler(async(req, res) => {
@@ -279,7 +279,7 @@ const updateAccountDetails = asyncHandler(async(req, res) => {
         throw new ApiError(400, "All fields are required")
     }
 
-    const user = User.findByIdAndDelete(
+    const user = await User.findByIdAndDelete(
         req.user?._id,
         {
             $set: {
@@ -321,6 +321,8 @@ const updateUserAvatar = asyncHandler(async(req, res) => {
         {new: true}
     ).select("-password")
 
+    //DELETE OLD-IMAGE (3:54) VID NO: 18
+
     return res
     .status(200)
     .json(
@@ -360,6 +362,134 @@ const updateUserCoverImage = asyncHandler(async(req, res) => {
     )
 })
 
+const getUserChannelProfile = asyncHandler(async(req, res) => {
+    const {username} = req.params //means url se
+
+    if (!username?.trim()) {
+        throw new ApiError(400, "username is missing")
+    }
+
+    const channel = await User.aggregate([
+        {
+            $match: {
+                username: username?.toLowerCase()
+            },
+        },
+
+        {
+            $lookup: {                    //to join to models ig
+                from: "subscriptions",   //lowercase and plural in DB
+                localField: "_id",
+                foreignField: "channel",
+                as: "subscribers"
+            }
+        },
+
+        {
+            $lookup: {
+                from: "subscriptions",   //lowercase and plural in DB
+                localField: "_id",
+                foreignField: "subscriber",
+                as: "subscribedTo"
+            }
+        },
+
+        {
+            $addFields: {
+                subscribersCount: {
+                    $size: "$subscribers"   // dollar sign means its a field.
+                },
+
+                channelsSubscribedToCount: {
+                    $size: "$subscribedTo"
+                },
+
+                isSubscribed: {
+                    $cond: {
+                        if: {$in: [req.user?._id, "$subscribers.subscriber"]}, // $in can look into bjects and array, we gave it an object
+                        then: true,
+                        else: false
+                    }
+                }
+            }
+        },
+
+        {
+            $project: {  // we'll not give/project all the values insetad well give selected values
+
+                fullName: 1,   //1 is a flag
+                username: 1,
+                subscribersCount: 1,
+                channelsSubscribedToCount: 1,
+                isSubscribed: 1,
+                avatar: 1,
+                coverImage: 1,
+                email: 1,
+                // createdAt: 1  (optional)
+            }
+        }
+    ])
+
+        if (!channel?.length) {
+            throw new ApiError(404, "channel doesn't exist")
+        }
+
+        return res
+        .status(200)
+        .json(
+            new ApiResponse(200, channel[0], "User channel fetched successfully.")
+        )
+}) 
+
+const getWatchtchHistory = asyncHandler(async(req, res) => {
+    const user = await User.aggregate([
+        {
+            $match: {
+                from: "videos",
+                localField: "watchHistory",
+                foreignField: "_id",
+                as: "watchHistory",
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "owner",
+                            pipeline: [
+                                {
+                                    $project: {
+                                            fullName: 1,
+                                            username: 1,
+                                            avatar: 1
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        $addFields: {
+                            owner: {
+                                $first: "$owner"  //$first for first element of array.
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ])
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            user[0].watchHistory,
+            "Watch history fetched successfully."
+        )
+    )
+})
+
 
 export {
     registerUser,
@@ -370,6 +500,8 @@ export {
     getCurrentUser,
     updateAccountDetails,
     updateUserAvatar,
-    updateUserCoverImage
+    updateUserCoverImage,
+    getUserChannelProfile,
+    getWatchtchHistory
     
 }
