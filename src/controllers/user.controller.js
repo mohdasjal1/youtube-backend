@@ -5,6 +5,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken"; 
+import mongoose from "mongoose";
 
 
 // (5)
@@ -173,8 +174,12 @@ const logoutUser = asyncHandler(async(req, res) => {
     await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set: {
-                refreshToken: undefined
+            // $set: {
+            //     refreshToken: undefined
+            // }
+            
+            $unset: {
+                refreshToken: 1 //this removes the field from document
             }
         },
         {
@@ -445,6 +450,11 @@ const getWatchtchHistory = asyncHandler(async(req, res) => {
     const user = await User.aggregate([
         {
             $match: {
+                _id: new mongoose.Types.ObjectId(req.user._id)
+            }
+        },
+        {
+            $lookup: {
                 from: "videos",
                 localField: "watchHistory",
                 foreignField: "_id",
