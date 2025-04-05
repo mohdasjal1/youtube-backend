@@ -4,9 +4,31 @@ import dotenv from "dotenv"
 import connectDB from "./db/index.js"
 import { app } from "./app.js"
 
+import OpenAI from "openai";
+import Configuration from "openai"
+
+const configuration = new Configuration({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+
+const openai = new OpenAI(configuration);  
+
 dotenv.config({
     path: './.env'
 })
+
+
+app.get('/getResponse', async (req, res) => {
+    const userPrompt = req.body.userPrompt;      
+    const response = await openai.chat.completions.create({
+        model: 'gpt-4', 
+        messages: [{"role": "user", "content" : userPrompt }]
+    })
+    console.log(response.choices[0].message.content);
+    res.send(response.choices[0].message.content)
+    
+})
+
 
 connectDB()
 .then(() => {
@@ -17,6 +39,9 @@ connectDB()
 .catch((err) => {
     console.log("MONGO db connection failed !!! ", err);
 })
+
+
+
 
 
 // "start": "node --env-file=.env src/index.js",    
