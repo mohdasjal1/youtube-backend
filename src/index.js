@@ -29,6 +29,9 @@ app.get('/getResponse', async (req, res) => {
     
 })
 
+
+const port = process.env.PORT || 8000;
+
 app.get('/', (req, res) => {
     res.send('🚀 Backend is live!');
   });
