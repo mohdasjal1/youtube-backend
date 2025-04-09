@@ -7,71 +7,56 @@ import jwt from 'jsonwebtoken';
 // import pkg from "jsonwebtoken";
 // const {jwt} = pkg;
 
-// export const verifyJWT = asyncHandler(async(req, res, next) => {
-//     try {
-//         // const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "")
+export const verifyJWT = asyncHandler(async(req, _, next) => {
+    try {
+        const accessToken = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "")
     
-//         // if (!token) {
-//         //     throw new ApiError(401, "Unauthorized request")
-//         // }
+        if (!accessToken) {
+            throw new ApiError(401, "Unauthorized request")
+        }
+            
+        const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET)
+    
+        const user = await User.findById(decodedToken?._id).select("-password -refreshToken")
+    
+        if (!user) {            
+            throw new ApiError(401, "Invalid Access Token")
+        }
+        
+        req.user = user;
+        next()
+    } catch (error) {
+        throw new ApiError(401, error?.message || "Invalid Access Token")
+    }
 
+})
+
+// export const verifyJWT = asyncHandler(async (req, res, next) => {
+//     try {
 //         const authHeader = req.headers.authorization || req.header("Authorization");
 //         let token;
 
 //         if (authHeader && authHeader.startsWith("Bearer ")) {
-//         token = authHeader.split(" ")[1];
+//             token = authHeader.split(" ")[1];
 //         } else if (req.cookies?.accessToken) {
-//         token = req.cookies.accessToken;
+//             token = req.cookies.accessToken;
 //         }
 
 //         if (!token) {
-//         throw new ApiError(401, "Unauthorized request");
+//             throw new ApiError(401, "Unauthorized request");
 //         }
 
-    
-//         const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
-    
-//         const user = await User.findById(decodedToken?._id).select("-password -refreshToken")
-    
+//         const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+//         const user = await User.findById(decodedToken?._id).select("-password -refreshToken");
+
 //         if (!user) {
-//             // NEXT_VIDEO: discuss about frontend
-//             throw new ApiError(401, "Invalid Access Token")
+//             throw new ApiError(401, "Invalid Access Token");
 //         }
-        
+
 //         req.user = user;
-//         next()
+//         next();
 //     } catch (error) {
-//         throw new ApiError(401, error?.message || "Invalid Access Token")
+//         throw new ApiError(401, error?.message || "Invalid Access Token");
 //     }
-
-// })
-
-export const verifyJWT = asyncHandler(async (req, res, next) => {
-    try {
-        const authHeader = req.headers.authorization || req.header("Authorization");
-        let token;
-
-        if (authHeader && authHeader.startsWith("Bearer ")) {
-            token = authHeader.split(" ")[1];
-        } else if (req.cookies?.accessToken) {
-            token = req.cookies.accessToken;
-        }
-
-        if (!token) {
-            throw new ApiError(401, "Unauthorized request");
-        }
-
-        const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-
-        const user = await User.findById(decodedToken?._id).select("-password -refreshToken");
-
-        if (!user) {
-            throw new ApiError(401, "Invalid Access Token");
-        }
-
-        req.user = user;
-        next();
-    } catch (error) {
-        throw new ApiError(401, error?.message || "Invalid Access Token");
-    }
-});
+// });
