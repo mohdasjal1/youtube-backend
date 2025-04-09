@@ -29,6 +29,9 @@ app.get('/getResponse', async (req, res) => {
     
 })
 
+app.get('/', (req, res) => {
+    res.send('🚀 Backend is live!');
+  });
 
 connectDB()
 .then(() => {
