@@ -280,6 +280,20 @@ const changeCurrentPassword = asyncHandler(async(req, res) => {
 })
 
 const getCurrentUser = asyncHandler(async(req, res) => {
+
+        // (1) Check if user object exists on request (added by auth middleware)
+        if (!req.user || !req.user._id) {
+            throw new ApiError(401, "Unauthorized: User not found in request");
+        }
+    
+        // (2) Fetch the user from the database to get the most up-to-date data
+        const user = await User.findById(req.user._id).select("-password -refreshToken");
+    
+        // (3) Check if user was found in DB
+        if (!user) {
+            throw new ApiError(404, "User not found");
+        }
+
     return res
     .status(200)
     .json(new ApiResponse(200, req.user, "current user fetched successfully"))
