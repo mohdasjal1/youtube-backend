@@ -62,41 +62,41 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     /*(4)*/
-    // const avatarLocalPath = req.files?.avatar[0]?.path;
+    const avatarLocalPath = req.files?.avatar[0]?.path;
 
     // const avatarLocalPath = req.files?.avatar && req.files.avatar.length > 0 
     // ? req.files.avatar[0].path 
     // : null;
 
     
-    // if (!avatarLocalPath) {
-    //     throw new ApiError(400, "Avatar file is required")
-    // }
+    if (!avatarLocalPath) {
+        throw new ApiError(400, "Avatar file is required")
+    }
 
 
-    // //const coverImageLocalPath = req.files?.coverImage[0]?.path;
-    // let coverImageLocalPath;
-    // if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
-    //     coverImageLocalPath = req.files.coverImage[0].path
-    // }
+    //const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    let coverImageLocalPath;
+    if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
+        coverImageLocalPath = req.files.coverImage[0].path
+    }
 
 
     
 
     /*(5)*/
 
-    // const avatar = await uploadOnCloudinary(avatarLocalPath)
-    // const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+    const avatar = await uploadOnCloudinary(avatarLocalPath)
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
-    // if (!avatar) {
-    //     throw new ApiError(400, "Avatar file is not uploaded")
-    // }
+    if (!avatar) {
+        throw new ApiError(400, "Avatar file is not uploaded")
+    }
 
     // ( 6 )
     const user = await User.create({
         fullName,
-   //     avatar: avatar.url,
-   //     coverImage: coverImage?.url || "",
+        avatar: avatar.url,
+        coverImage: coverImage?.url || "",
         email,
         password,
         username: username.toLowerCase(),

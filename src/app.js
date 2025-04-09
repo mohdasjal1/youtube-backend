@@ -1,6 +1,7 @@
-import express from "express"
-import cors from "cors"
-import cookieParser from "cookie-parser"
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import morgan from "morgan";
 
 const app = express()
 
@@ -13,7 +14,7 @@ app.use(express.json({limit: "16kb"}))
 app.use(express.urlencoded({extended: true, limit: "16kb"}))
 app.use(express.static("public"))
 app.use(cookieParser())
-
+app.use(morgan("dev")); //HTTP request logger middleware for node.js 
 
 
 //routes
@@ -24,6 +25,7 @@ import dashboardRouter from "./routes/dashboard.routes.js";
 import playlistRouter from "./routes/playlist.routes.js"
 import tweetRouter from "./routes/tweet.routes.js"
 import subscriptionRouter from "./routes/subscription.routes.js"
+import videoRouter from "./routes/video.routes.js";
 
 //routes declaration
 app.use("/api/v1/users", userRouter)
@@ -33,9 +35,7 @@ app.use("/api/v1/dashboard", dashboardRouter);
 app.use("/api/v1/playlist", playlistRouter);
 app.use("/api/v1/tweet", tweetRouter)
 app.use("/api/v1/subscriptions", subscriptionRouter)
-
-// http://localhost:8000/api/v1/users/register
-
+app.use("/api/v1/video", videoRouter);
 
 
 export { app }
