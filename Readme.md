@@ -23,5 +23,7 @@ A scalable and modular backend for a YouTube-like video-sharing platform, built 
 - **File Uploads:** Multer
 - **Others:** dotenv, express-async-handler, morgan, cookie-parser
 
+
+
 > ⚠️ Frontend is under development and will be linked once completed.
 
