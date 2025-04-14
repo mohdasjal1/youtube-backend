@@ -25,5 +25,6 @@ A scalable and modular backend for a YouTube-like video-sharing platform, built 
 
 
 
-> ⚠️ Frontend is under development and will be linked once completed.
+> ⚠️ Frontend is still under development and will be linked once completed.
+
 
