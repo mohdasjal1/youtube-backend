@@ -69,7 +69,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
                 owner: {
                     username: 1,
                     fullName: 1,
-                    "avatar.url": 1
+                    avatar: 1
                 },
                 isLiked: 1
             }
@@ -101,11 +101,11 @@ const addComment = asyncHandler(async (req, res) => {
     }
 
     const video = await Video.findById(videoId);
+
     if (!video) {
         throw new ApiError(404, "Video not found");
     }
 
-    // Create comment
     const comment = await Comment.create({
         content,
         video: videoId,
@@ -116,45 +116,10 @@ const addComment = asyncHandler(async (req, res) => {
         throw new ApiError(500, "Failed to add comment please try again");
     }
 
-    // Populate owner details like avatar and username
-    const populatedComment = await comment.populate({
-        path: "owner",
-        select: "username avatar"
-    });
-
     return res
         .status(201)
-        .json(new ApiResponse(201, populatedComment, "Comment added successfully"));
+        .json(new ApiResponse(201, comment, "Comment added successfully"));
 });
-
-// const addComment = asyncHandler(async (req, res) => {
-//     const { videoId } = req.params;
-//     const { content } = req.body;
-
-//     if (!content) {
-//         throw new ApiError(400, "Content is required");
-//     }
-
-//     const video = await Video.findById(videoId);
-
-//     if (!video) {
-//         throw new ApiError(404, "Video not found");
-//     }
-
-//     const comment = await Comment.create({
-//         content,
-//         video: videoId,
-//         owner: req.user?._id
-//     });
-
-//     if (!comment) {
-//         throw new ApiError(500, "Failed to add comment please try again");
-//     }
-
-//     return res
-//         .status(201)
-//         .json(new ApiResponse(201, comment, "Comment added successfully"));
-// });
 
 // update a comment
 const updateComment = asyncHandler(async (req, res) => {
