@@ -91,11 +91,19 @@ const videoSchema = new Schema(
         },
         views: {
             type: Number,
-            defaultValue: 0,
+            default: 0,
         },
+
+        viewers: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User"
+            }
+        ],
+        
         isPublished: {
             type: Boolean,
-            defaultValue: false,
+            default: false,
         },
     },
     {
