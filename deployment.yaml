@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chai-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chai-backend
+  template:
+    metadata:
+      labels:
+        app: chai-backend
+    spec:
+      containers:
+        - name: chai-backend
+          image: asjalamir/chai-backend:latest
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: chai-backend-secrets

@@ -506,6 +506,11 @@ const getWatchtchHistory = asyncHandler(async(req, res) => {
                                 $first: "$owner"  //$first for first element of array.
                             }
                         }
+                    },
+                    {
+                        $sort: {
+                            createdAt: -1
+                        }
                     }
                 ]
             }

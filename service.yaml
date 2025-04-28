@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: chai-backend-service
+spec:
+  selector:
+    app: chai-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+      nodePort: 30080  # You can choose a port number like 30080
+  type: NodePort
