@@ -451,15 +451,15 @@ const updateVideo = asyncHandler(async (req, res) => {
 
     const thumbnailLocalPath = req.file?.path;
 
-    if (!thumbnailLocalPath) {
-        throw new ApiError(400, "thumbnail is required");
-    }
+    // if (!thumbnailLocalPath) {
+    //     throw new ApiError(400, "thumbnail is required");
+    // }
 
     const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
 
-    if (!thumbnail) {
-        throw new ApiError(400, "thumbnail not found");
-    }
+    // if (!thumbnail) {
+    //     throw new ApiError(400, "thumbnail not found");
+    // }
 
     const updatedVideo = await Video.findByIdAndUpdate(
         videoId,
