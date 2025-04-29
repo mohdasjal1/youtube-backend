@@ -8,7 +8,41 @@ import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 
 
-// (5)
+
+// Refresh Access Token Controller
+export const refreshAccessToken = asyncHandler(async (req, res) => {
+    const { refreshToken } = req.cookies;
+
+    if (!refreshToken) {
+        throw new ApiError(401, "Refresh token not found, please log in again");
+    }
+
+    try {
+        const decodedToken = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+        
+        // Check if the user exists
+        const user = await User.findById(decodedToken._id).select("-password");
+
+        if (!user) {
+            throw new ApiError(401, "Invalid Refresh Token");
+        }
+
+        // Generate a new access token
+        const accessToken = user.generateAccessToken();
+
+        return res
+            .status(200)
+            .cookie("accessToken", accessToken, {
+                httpOnly: true,
+                secure: true,
+                sameSite: "None",
+            })
+            .json(new ApiResponse(200, { accessToken }, "Access Token refreshed successfully"));
+    } catch (error) {
+        throw new ApiError(401, "Invalid Refresh Token");
+    }
+});
+
 const generateAccessandRefereshTokens = async(userId) => {
     try {
         const user = await User.findById(userId)
@@ -138,12 +172,14 @@ const loginUser = asyncHandler(async (req, res) => {
     const options = {
         httpOnly: true,
         secure: true,
-        sameSite: "None"
+        sameSite: "None",       
+        maxAge: 10 * 24 * 60 * 60 * 1000 // 10 days in ms
     }
 
     return res
     .status(200)
-    .cookie("accessToken", accessToken, options).cookie("refreshToken", refreshToken, options)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
     .json(
         new ApiResponse(
             200,
