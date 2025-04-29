@@ -7,7 +7,8 @@ import {
     getVideoById,
     updateVideo,
     publishAVideo,
-    togglePublishStatus
+    togglePublishStatus,
+    dislikeVideo
 } from "../controllers/video.controller.js";
 
 const router = Router();
@@ -31,6 +32,8 @@ router
         ]),
         publishAVideo
     );
+
+    
 
 router
     .route("/v/:videoId")
