@@ -10,13 +10,13 @@ dotenv.config({
 
 const port = process.env.PORT || 8000;
 
-// app.get('/', (req, res) => {
-//     res.send('🚀 Backend is live!');
-// });
+app.get('/', (req, res) => {
+    res.send('🚀 Backend is live!');
+});
 
-app.get("/", (req, res) => {
-    res.status(200).json(new ApiResponse(200, "🚀 Containerized Backend is live!"));
-  });
+// app.get("/", (req, res) => {
+//     res.status(200).json(new ApiResponse(200, "🚀 Containerized Backend is live!"));
+//   });
   
 
 connectDB()
