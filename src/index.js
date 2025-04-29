@@ -1,4 +1,4 @@
-
+import { ApiResponse } from "./utils/ApiResponse.js"
 import dotenv from "dotenv"
 import connectDB from "./db/index.js"
 import { app } from "./app.js"
@@ -15,7 +15,7 @@ const port = process.env.PORT || 8000;
 // });
 
 app.get("/", (req, res) => {
-    res.status(200).json({ message: "API is healthy!" });
+    res.status(200).json(new ApiResponse(200, "🚀 Containerized Backend is live!"));
   });
   
 
