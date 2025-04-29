@@ -10,7 +10,7 @@ import mongoose from "mongoose";
 
 
 // Refresh Access Token Controller
-export const refreshAccessToken = asyncHandler(async (req, res) => {
+ const refreshAccessToken = asyncHandler(async (req, res) => {
     const { refreshToken } = req.cookies;
 
     if (!refreshToken) {
