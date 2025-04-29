@@ -20,3 +20,6 @@ jobs:
 
       - name: Push to Docker Hub
         run: docker push asjalamir/chai-backend:latest
+
+      - name: Trigger Render redeploy
+        run: curl -X POST https://api.render.com/deploy/srv-d07s8kidbo4c73brp0c0?key=bnm2ZriMsKE
