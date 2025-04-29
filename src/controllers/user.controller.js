@@ -26,33 +26,16 @@ const generateAccessandRefereshTokens = async(userId) => {
 }
 
 const registerUser = asyncHandler(async (req, res) => {
-    //  (1)  get user details from frontend
-    //  (2)  validation - not empty
-    //  (3)  check if user already exists: username, email
-    //  (4)  check for images, check for avatar
-    //  (5)  upload them to cloudinary, avatar
-    //  (6)  create user object - create entry in db
-    //  (7)  remove password and refresh token field from response
-    //  (8)  check for user creation
-    //  (9)  return res
-
-
-    /*(1)*/
+    
     const {fullName, email, username, password} = req.body
-    //console.log("email", email);
     
-    
-    
-
-    /*(2)*/
     if (
       [fullName, email, username, password].some(
         (fields) => fields?.trim() === "" )  
     ) {
         throw new ApiError(400, "All fields are required")
     }
-
-    /*(3)*/
+    
     const existedUser = await User.findOne({
         $or: [{ username }, { email }]
     })
@@ -61,7 +44,6 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(409, "User with email or username already exists")   
     }
 
-    /*(4)*/
     const avatarLocalPath = req.files?.avatar[0]?.path;
 
     // const avatarLocalPath = req.files?.avatar && req.files.avatar.length > 0 
@@ -83,8 +65,6 @@ const registerUser = asyncHandler(async (req, res) => {
 
     
 
-    /*(5)*/
-
     const avatar = await uploadOnCloudinary(avatarLocalPath)
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
@@ -92,7 +72,6 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Avatar file is not uploaded")
     }
 
-    // ( 6 )
     const user = await User.create({
         fullName,
         avatar: avatar.url,
@@ -103,12 +82,10 @@ const registerUser = asyncHandler(async (req, res) => {
 
     })
 
-    // ( 7 )
     const createdUser = await User.findById(user._id).select(
         "-password -refreshToken"
     )
 
-    // ( 8 )
     if (!createdUser) {
         throw new ApiError(500, "Something went wrong while registering a user")
     }
@@ -198,13 +175,15 @@ const logoutUser = asyncHandler(async(req, res) => {
 
     const options = {
         httpOnly: true,
-        secure: true
+        secure: true,
+        sameSite: "None",
+        path: "/"
     }
 
     return res
     .status(200)
-    .clearCookie("accessToken", options)
-    .clearCookie("refreshToken", options)
+    .clearCookie("accessToken", { ...options, path: "/"})
+    .clearCookie("refreshToken", { ...options, path: "/"})
     .json(new ApiResponse(200, {}, "User logged Out"))
 
 })
