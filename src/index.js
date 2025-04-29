@@ -10,9 +10,14 @@ dotenv.config({
 
 const port = process.env.PORT || 8000;
 
-app.get('/', (req, res) => {
-    res.send('🚀 Backend is live!');
-});
+// app.get('/', (req, res) => {
+//     res.send('🚀 Backend is live!');
+// });
+
+app.get("/", (req, res) => {
+    res.status(200).json({ message: "API is healthy!" });
+  });
+  
 
 connectDB()
 .then(() => {
