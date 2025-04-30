@@ -280,6 +280,12 @@ const deleteComment = asyncHandler(async (req, res) => {
         likedBy: req.user
     });
 
+    await Dislike.deleteMany({
+        comment: commentId,
+        dislikedBy: req.user
+    });
+    
+
     return res
         .status(200)
         .json(
