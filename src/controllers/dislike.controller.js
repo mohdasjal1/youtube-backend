@@ -11,7 +11,9 @@ const toggleVideoDislike = async (req, res) => {
 
   if (existingDislike) {
     await existingDislike.deleteOne();
-    return res.status(200).json(new ApiResponse(200, null, "Video dislike removed"));
+    return res
+    .status(200)
+    .json(new ApiResponse(200, {isDisliked: false}));
   }
 
   // Optional: remove like if it exists
@@ -19,7 +21,9 @@ const toggleVideoDislike = async (req, res) => {
 
   const dislike = await Dislike.create({ video: videoId, dislikedBy: userId });
 
-  return res.status(200).json(new ApiResponse(200, dislike, "Video disliked successfully"));
+  return res
+  .status(200)
+  .json(new ApiResponse(200, {isDisliked: true}));
 };
 
 // Toggle Dislike on Comment
