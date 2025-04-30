@@ -154,6 +154,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, video, "Video uploaded successfully"));
 });
 
+
 const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
 
@@ -179,14 +180,14 @@ const getVideoById = asyncHandler(async (req, res) => {
         });
     }
 
-    // add to user's watch history regardless
+    // Add to user's watch history
     await User.findByIdAndUpdate(viewerId, {
         $addToSet: {
             watchHistory: videoId
         }
     });
 
-    // now run aggregation to get detailed video info
+    // Aggregation pipeline
     const video = await Video.aggregate([
         {
             $match: {
@@ -199,6 +200,14 @@ const getVideoById = asyncHandler(async (req, res) => {
                 localField: "_id",
                 foreignField: "video",
                 as: "likes"
+            }
+        },
+        {
+            $lookup: {
+                from: "dislikes",
+                localField: "_id",
+                foreignField: "video",
+                as: "dislikes"
             }
         },
         {
@@ -249,10 +258,18 @@ const getVideoById = asyncHandler(async (req, res) => {
         {
             $addFields: {
                 likesCount: { $size: "$likes" },
+                dislikesCount: { $size: "$dislikes" },
                 owner: { $first: "$owner" },
                 isLiked: {
                     $cond: {
                         if: { $in: [viewerId, "$likes.likedBy"] },
+                        then: true,
+                        else: false
+                    }
+                },
+                isDisliked: {
+                    $cond: {
+                        if: { $in: [viewerId, "$dislikes.dislikedBy"] },
                         then: true,
                         else: false
                     }
@@ -270,7 +287,9 @@ const getVideoById = asyncHandler(async (req, res) => {
                 comments: 1,
                 owner: 1,
                 likesCount: 1,
-                isLiked: 1
+                isLiked: 1,
+                dislikesCount: 1,
+                isDisliked: 1
             }
         }
     ]);
@@ -286,7 +305,144 @@ const getVideoById = asyncHandler(async (req, res) => {
         );
 });
 
+
+// const getVideoById = asyncHandler(async (req, res) => {
+//     const { videoId } = req.params;
+
+//     if (!isValidObjectId(videoId)) {
+//         throw new ApiError(400, "Invalid videoId");
+//     }
+
+//     if (!isValidObjectId(req.user?._id)) {
+//         throw new ApiError(400, "Invalid userId");
+//     }
+
+//     const viewerId = req.user._id;
+
+//     // Check and update unique views before aggregation
+//     const videoDoc = await Video.findById(videoId);
+//     if (!videoDoc) throw new ApiError(404, "Video not found");
+
+//     const hasViewed = videoDoc.viewers.includes(viewerId);
+//     if (!hasViewed) {
+//         await Video.findByIdAndUpdate(videoId, {
+//             $inc: { views: 1 },
+//             $addToSet: { viewers: viewerId }
+//         });
+//     }
+
+//     // add to user's watch history regardless
+//     await User.findByIdAndUpdate(viewerId, {
+//         $addToSet: {
+//             watchHistory: videoId
+//         }
+//     });
+
+//     // now run aggregation to get detailed video info
+//     const video = await Video.aggregate([
+//         {
+//             $match: {
+//                 _id: new mongoose.Types.ObjectId(videoId)
+//             }
+//         },
+//         {
+//             $lookup: {
+//                 from: "likes",
+//                 localField: "_id",
+//                 foreignField: "video",
+//                 as: "likes"
+//             }
+//         },
+//         {
+//             $lookup: {
+//                 from: "users",
+//                 localField: "owner",
+//                 foreignField: "_id",
+//                 as: "owner",
+//                 pipeline: [
+//                     {
+//                         $lookup: {
+//                             from: "subscriptions",
+//                             localField: "_id",
+//                             foreignField: "channel",
+//                             as: "subscribers"
+//                         }
+//                     },
+//                     {
+//                         $addFields: {
+//                             subscribersCount: {
+//                                 $size: "$subscribers"
+//                             },
+//                             isSubscribed: {
+//                                 $cond: {
+//                                     if: {
+//                                         $in: [
+//                                             viewerId,
+//                                             "$subscribers.subscriber"
+//                                         ]
+//                                     },
+//                                     then: true,
+//                                     else: false
+//                                 }
+//                             }
+//                         }
+//                     },
+//                     {
+//                         $project: {
+//                             username: 1,
+//                             avatar: 1,
+//                             subscribersCount: 1,
+//                             isSubscribed: 1
+//                         }
+//                     }
+//                 ]
+//             }
+//         },
+//         {
+//             $addFields: {
+//                 likesCount: { $size: "$likes" },
+//                 owner: { $first: "$owner" },
+//                 isLiked: {
+//                     $cond: {
+//                         if: { $in: [viewerId, "$likes.likedBy"] },
+//                         then: true,
+//                         else: false
+//                     }
+//                 }
+//             }
+//         },
+//         {
+//             $project: {
+//                 "videoFile.url": 1,
+//                 title: 1,
+//                 description: 1,
+//                 views: 1,
+//                 createdAt: 1,
+//                 duration: 1,
+//                 comments: 1,
+//                 owner: 1,
+//                 likesCount: 1,
+//                 isLiked: 1
+//             }
+//         }
+//     ]);
+
+//     if (!video || video.length === 0) {
+//         throw new ApiError(500, "Failed to fetch video");
+//     }
+
+//     return res
+//         .status(200)
+//         .json(
+//             new ApiResponse(200, video[0], "Video details fetched successfully")
+//         );
+// });
+
+
+
 // update video details like title, description, thumbnail
+
+
 const updateVideo = asyncHandler(async (req, res) => {
     const { title, description } = req.body;
     const { videoId } = req.params;
