@@ -16,6 +16,7 @@ app.use(
         if (!origin) return callback(null, true);
   
         if (allowedOrigins.includes(origin)) {
+          console.log(("Origin", origin));
           return callback(null, true);
         } else {
           console.log(("Origin", origin));
