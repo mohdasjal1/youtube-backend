@@ -492,7 +492,12 @@ const getWatchHistory = asyncHandler(async (req, res) => {
             }
         },
         {
-            $unwind: "$watchHistory" // Unwind the watchHistory array to preserve its order
+            $project: {
+                watchHistory: { $reverseArray: "$watchHistory" } // Reverse the array to get the latest first
+            }
+        },
+        {
+            $unwind: "$watchHistory" // Unwind the watchHistory array
         },
         {
             $lookup: {
@@ -529,12 +534,7 @@ const getWatchHistory = asyncHandler(async (req, res) => {
             }
         },
         {
-            $unwind: "$videoDetails" // Unwind the videoDetails array after lookup
-        },
-        {
-            $sort: {
-                _id: -1 // Sort by the order of the watchHistory array (latest first)
-            }
+            $unwind: "$videoDetails" // Unwind the videoDetails array
         },
         {
             $group: {
@@ -554,6 +554,77 @@ const getWatchHistory = asyncHandler(async (req, res) => {
             )
         );
 });
+
+// const getWatchHistory = asyncHandler(async (req, res) => {
+//     const user = await User.aggregate([
+//         {
+//             $match: {
+//                 _id: new mongoose.Types.ObjectId(req.user._id)
+//             }
+//         },
+//         {
+//             $unwind: "$watchHistory" // Unwind the watchHistory array to preserve its order
+//         },
+//         {
+//             $lookup: {
+//                 from: "videos",
+//                 localField: "watchHistory",
+//                 foreignField: "_id",
+//                 as: "videoDetails",
+//                 pipeline: [
+//                     {
+//                         $lookup: {
+//                             from: "users",
+//                             localField: "owner",
+//                             foreignField: "_id",
+//                             as: "owner",
+//                             pipeline: [
+//                                 {
+//                                     $project: {
+//                                         fullName: 1,
+//                                         username: 1,
+//                                         avatar: 1
+//                                     }
+//                                 }
+//                             ]
+//                         }
+//                     },
+//                     {
+//                         $addFields: {
+//                             owner: {
+//                                 $first: "$owner" // Get the first element of the owner array
+//                             }
+//                         }
+//                     }
+//                 ]
+//             }
+//         },
+//         {
+//             $unwind: "$videoDetails" // Unwind the videoDetails array after lookup
+//         },
+//         {
+//             $sort: {
+//                 _id: -1 // Sort by the order of the watchHistory array (latest first)
+//             }
+//         },
+//         {
+//             $group: {
+//                 _id: "$_id",
+//                 watchHistory: { $push: "$videoDetails" } // Reconstruct the watchHistory array
+//             }
+//         }
+//     ]);
+
+//     return res
+//         .status(200)
+//         .json(
+//             new ApiResponse(
+//                 200,
+//                 user[0]?.watchHistory || [],
+//                 "Watch history fetched successfully."
+//             )
+//         );
+// });
 
 // const getWatchtchHistory = asyncHandler(async(req, res) => {
 //     const user = await User.aggregate([
