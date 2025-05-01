@@ -269,7 +269,13 @@ const getVideoById = asyncHandler(async (req, res) => {
                 },
                 isDisliked: {
                     $cond: {
-                        if: { $in: [viewerId, "$dislikes.dislikedBy"] },
+                        if: { $in: [viewerId, {
+                                        $map: {
+                                            input: "$dislikes",
+                                            as: "d",
+                                            in: "$$d.dislikedBy"
+                                        }
+                        }] },
                         then: true,
                         else: false
                     }
