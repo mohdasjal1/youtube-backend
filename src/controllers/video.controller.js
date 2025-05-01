@@ -775,6 +775,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
 });
 
 // toggle publish status of a video
+
 const togglePublishStatus = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
 
@@ -795,11 +796,13 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
         );
     }
 
+    const newIsPublished = !video.isPublished;
+
     const toggledVideoPublish = await Video.findByIdAndUpdate(
         videoId,
         {
             $set: {
-                isPublished: !video?.isPublished
+                isPublished: newIsPublished
             }
         },
         { new: true }
@@ -809,16 +812,68 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
         throw new ApiError(500, "Failed to toggle video publish status");
     }
 
-    return res
-        .status(200)
-        .json(
-            new ApiResponse(
-                200,
-                { isPublished: toggledVideoPublish.isPublished },
-                "Video publish toggled successfully"
-            )
+    // If video is unpublished, remove it from all users' watchHistory
+    if (!newIsPublished) {
+        await User.updateMany(
+            { watchHistory: videoId },
+            { $pull: { watchHistory: videoId } }
         );
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            { isPublished: toggledVideoPublish.isPublished },
+            "Video publish toggled successfully"
+        )
+    );
 });
+
+
+// const togglePublishStatus = asyncHandler(async (req, res) => {
+//     const { videoId } = req.params;
+
+//     if (!isValidObjectId(videoId)) {
+//         throw new ApiError(400, "Invalid videoId");
+//     }
+
+//     const video = await Video.findById(videoId);
+
+//     if (!video) {
+//         throw new ApiError(404, "Video not found");
+//     }
+
+//     if (video?.owner.toString() !== req.user?._id.toString()) {
+//         throw new ApiError(
+//             400,
+//             "You can't toggle publish status as you are not the owner"
+//         );
+//     }
+
+//     const toggledVideoPublish = await Video.findByIdAndUpdate(
+//         videoId,
+//         {
+//             $set: {
+//                 isPublished: !video?.isPublished
+//             }
+//         },
+//         { new: true }
+//     );
+
+//     if (!toggledVideoPublish) {
+//         throw new ApiError(500, "Failed to toggle video publish status");
+//     }
+
+//     return res
+//         .status(200)
+//         .json(
+//             new ApiResponse(
+//                 200,
+//                 { isPublished: toggledVideoPublish.isPublished },
+//                 "Video publish toggled successfully"
+//             )
+//         );
+// });
 
 
 
