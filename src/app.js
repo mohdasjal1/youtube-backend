@@ -10,16 +10,12 @@ const allowedOrigins = process.env.CORS_ORIGIN?.split(",").map(origin => origin.
 app.use(
     cors({
       origin: function (origin, callback) {
-        // allow requests with no origin (e.g., Postman, curl)
-        console.log(("Origin", origin));
-        
+        // allow requests with no origin (e.g., Postman, curl)        
         if (!origin) return callback(null, true);
   
         if (allowedOrigins.includes(origin)) {
-          console.log(("Origin", origin));
           return callback(null, true);
         } else {
-          console.log(("Origin", origin));
           return callback(new Error("Not allowed by CORS"));
         }
       },
