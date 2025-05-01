@@ -15,7 +15,7 @@ const toggleVideoDislike = asyncHandler(async (req, res) => {
 
   const dislikedAlready = await Dislike.findOne({
       video: videoId,
-      dislikedBy: userId
+      dislikedBy: req.user?._id
   });
 
   if (dislikedAlready) {
