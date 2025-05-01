@@ -179,13 +179,12 @@ const getVideoById = asyncHandler(async (req, res) => {
         });
     }
 
-    // Add to user's watch history
+    // Update watch history: remove if exists, then push to end
     await User.findByIdAndUpdate(viewerId, {
-        $pull: { watchHistory: videoId } // Remove the video if it already exists
+        $pull: { watchHistory: videoId }
     });
-
     await User.findByIdAndUpdate(viewerId, {
-        $push: { watchHistory: { $each: [videoId], $position: 0 } } // Add the video to the top
+        $push: { watchHistory: videoId }
     });
 
     // Aggregation pipeline
@@ -262,29 +261,16 @@ const getVideoById = asyncHandler(async (req, res) => {
                 dislikesCount: { $size: "$dislikes" },
                 owner: { $first: "$owner" },
                 isLiked: {
-                    $cond: {
-                        if: { $in: [viewerId, "$likes.likedBy"] },
-                        then: true,
-                        else: false
-                    }
+                    $in: [viewerId, "$likes.likedBy"]
                 },
                 isDisliked: {
-                    $cond: {
-                        if: {
-                            $in: [
-                                viewerId,
-                                {
-                                    $map: {
-                                        input: "$dislikes",
-                                        as: "d",
-                                        in: "$$d.dislikedBy"
-                                    }
-                                }
-                            ]
-                        },
-                        then: true,
-                        else: false
-                    }
+                    $in: [viewerId, {
+                        $map: {
+                            input: "$dislikes",
+                            as: "d",
+                            in: "$$d.dislikedBy"
+                        }
+                    }]
                 }
             }
         },
@@ -312,10 +298,9 @@ const getVideoById = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(
-            new ApiResponse(200, video[0], "Video details fetched successfully")
-        );
+        .json(new ApiResponse(200, video[0], "Video details fetched successfully"));
 });
+
 
 //working latest
 // const getVideoById = asyncHandler(async (req, res) => {
@@ -806,7 +791,7 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     if (video?.owner.toString() !== req.user?._id.toString()) {
         throw new ApiError(
             400,
-            "You can't toogle publish status as you are not the owner"
+            "You can't toggle publish status as you are not the owner"
         );
     }
 
@@ -821,7 +806,7 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     );
 
     if (!toggledVideoPublish) {
-        throw new ApiError(500, "Failed to toogle video publish status");
+        throw new ApiError(500, "Failed to toggle video publish status");
     }
 
     return res
