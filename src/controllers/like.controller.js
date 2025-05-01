@@ -93,9 +93,8 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
 
     return res
     .status(200)
-    .json(200, {isLiked: true})
-    
-})
+    .json(new ApiResponse(200, {isLiked: true}))    
+});
 
 // const getLikedVideos = asyncHandler(async (req, res) => {
 //     const likedVideosAggregate = await Like.aggregate([
