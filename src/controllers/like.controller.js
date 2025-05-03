@@ -1,5 +1,6 @@
 import mongoose, { isValidObjectId } from "mongoose";
 import { Like } from "../models/like.model.js";
+import { Dislike } from "../models/dislike.model.js";
 import {ApiResponse} from "../utils/ApiResponse.js";
 import {ApiError} from "../utils/ApiError.js";
 import {asyncHandler} from "../utils/asyncHandler.js";
@@ -23,6 +24,11 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
         .status(200)
         .json(new ApiResponse(200, { isLiked: false}))
     }
+
+    await Dislike.deleteOne({ 
+        video: videoId,
+        dislikedBy: req.user?._id 
+    });
 
     await Like.create({
         video: videoId,
