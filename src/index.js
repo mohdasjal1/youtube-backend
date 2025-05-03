@@ -14,6 +14,11 @@ app.get('/', (req, res) => {
     res.send('🚀 Backend is live!');
 });
 
+app.get('/api/v1/ping', (req, res) => {
+    res.status(200).send('pong');
+  });
+  
+
 // app.get("/", (req, res) => {
 //     res.status(200).json(new ApiResponse(200, "🚀 Containerized Backend is live!"));
 //   });
