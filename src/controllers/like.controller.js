@@ -60,6 +60,11 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, { isLiked: false }))
     }
 
+    await Like.deleteOne({ 
+        comment: commentId,
+        dislikedBy: req.user?._id
+});
+
     await Like.create({
         comment: commentId,
         likedBy: req.user?._id
@@ -91,6 +96,12 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
             .status(200)
             .json(200, { isLiked: false })
         }
+
+        
+    await Dislike.deleteOne({
+        tweet: tweetId,
+        dislikedBy: req.user?._id
+    })
 
     await Like.create({
         tweet: tweetId,
