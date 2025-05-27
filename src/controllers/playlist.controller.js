@@ -326,7 +326,8 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
                 description: 1,
                 totalVideos: 1,
                 totalViews: 1,
-                updatedAt: 1
+                updatedAt: 1,
+                "thumbnail.url": 1,
             }
         }
     ]);
