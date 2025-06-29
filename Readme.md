@@ -25,14 +25,14 @@ A scalable and modular backend for a YouTube-like video-sharing platform, built 
 
 ## 🚀 Advanced Features & Deployment
 
--**Aggregation Pipelines:** MongoDB aggregation pipelines power advanced querying, text search, and efficient pagination.
--**Containerization:** The entire backend is containerized with Docker for consistent, portable deployments.
--**Kubernetes Ready:** Includes deployment.yml and service.yml manifests for horizontal scaling and orchestration in Kubernetes clusters.
--**CI/CD:** Automated build and deployment pipeline using GitHub Actions for continuous delivery.
+- **Aggregation Pipelines:** Uses MongoDB aggregation pipelines for advanced querying, text search, and efficient pagination.
+- **Containerization:** Entire backend is containerized with Docker for consistent, portable deployments.
+- **Kubernetes Ready:** Includes `deployment.yml` and `service.yml` manifests for horizontal scaling and orchestration in Kubernetes clusters.
+- **CI/CD:** Automated build and deployment pipeline using GitHub Actions for continuous delivery.
+- **Deployment:**
+  - **Backend:** Hosted on Render (supports both Docker image-based deploys and direct GitHub integration)
+  - **Frontend:** [Veedle](https://your-frontend-link.com)
 
--**Deployment:**
-  -Backend: Hosted on Render (supports both Docker image and direct GitHub integration)
-  -Frontend: [Veedle](https://your-frontend-link.com)
+---
 
-
-
+> Feel free to clone, fork, or explore all the features! Contributions and feedback are always welcome.
